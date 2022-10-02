@@ -23,14 +23,20 @@ size_t strlen_new(char *s) {
 int main() {
 
     char *fname_buf = calloc(sizeof(char), STR_LEN);
-    read(0, fname_buf, STR_LEN);
+    if (read(0, fname_buf, STR_LEN) < 0) {
+        perror("Read error");
+        exit(EXIT_FAILURE);
+    }
 
     char *fname = malloc(sizeof(char) * strlen_new(fname_buf));
     strncpy(fname, fname_buf, strlen_new(fname_buf));
     free(fname_buf);
 
     pid_t fd[2];
-    pipe(fd);
+    if (pipe(fd) != 0) {
+        perror("Pipe error");
+        exit(EXIT_FAILURE);
+    }
 
     int filedes;
     if ((filedes = open(fname, O_RDONLY)) < 0) {
@@ -41,7 +47,7 @@ int main() {
     pid_t pid = fork();
 
     if (pid < 0) {
-        perror("fork");
+        perror("Fork error");
         exit(EXIT_FAILURE);
     }
 
@@ -57,14 +63,14 @@ int main() {
             exit(EXIT_FAILURE);
         }
         execve(child_args[0], child_args, child_env);
-        perror("execve");
+        perror("Execve error");
     }
 
     else {              // Parent
 
         int child_exit_status;
         if (waitpid(pid, &child_exit_status, 0) < 0) {
-            perror("waitpid");
+            perror("Waitpid error");
         }
         if (WEXITSTATUS(child_exit_status) == 1) {
             char *err1 = "Child process error exit, divison by zero\n";
@@ -72,7 +78,7 @@ int main() {
             exit(EXIT_FAILURE);
         }
 
-        if (WEXITSTATUS(child_exit_status) == 4) {
+        else if (WEXITSTATUS(child_exit_status) == 4) {
             char *err2 = "Child process error exit, expected float number\n";
             write(2, err2, strlen(err2));
             exit(EXIT_FAILURE);
@@ -96,13 +102,13 @@ int main() {
         char *result_string = calloc(sizeof(char), STR_LEN);
         gcvt(result, 7, result_string);
         if (write(1, result_string, strlen(result_string)) < 0) {
-            perror("Can't write result to 1");
+            perror("Can't write result to stdout");
             exit(EXIT_FAILURE);
         }
 
         char endline_c = '\n';
         if (write(1, &endline_c, 1) < 0) {
-            perror("Can't write \\n to 1");
+            perror("Can't write \\n to stdout");
             exit(EXIT_FAILURE);
         }
     }
