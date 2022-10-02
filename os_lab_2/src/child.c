@@ -35,9 +35,12 @@ int read_float(int fd, float *f) {
 }
 
 int exec_command() {
+
+    int read_result;
+
     float init_num = 0, div_num = 0;
 
-    if (read_float(0, &init_num) == -1) {
+    if ((read_result = read_float(0, &init_num)) == -1) {
 
         if (first == 1)
             exit(4);
@@ -45,27 +48,32 @@ int exec_command() {
             return 0;
     }
 
-    else {
+    else if (read_result == 0) {
+        if (write(1, &init_num, sizeof(float)) < 0) {
+            exit(2);
+        }
         first = 0;
     }
 
-    int read_result;
+    else {
+        first = 0;
+        while ((read_result = read_float(0, &div_num)) != -1) {
+            
+            if (div_num == 0) {
+                exit(1);
+            }
 
-    while ((read_result = read_float(0, &div_num)) != -1) {
+            init_num /= div_num;
+
+            if (read_result == 0) {
+                break;
+            }
+        }
         
-        if (div_num == 0) {
-            exit(1);
+        if (write(1, &init_num, sizeof(float)) < 0) {
+            exit(2);
         }
 
-        init_num /= div_num;
-
-        if (read_result == 0) {
-            break;
-        }
-    }
-    
-    if (write(1, &init_num, sizeof(float)) < 0) {
-        exit(2);
     }
 
     return 1;
