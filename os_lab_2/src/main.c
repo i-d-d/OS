@@ -89,28 +89,27 @@ int main() {
             exit(EXIT_FAILURE);
         }
 
+        int t;
         float result;
-        if (read(fd[0], &result, sizeof(result)) < 0) {
-            perror("Can't read from pipe");
-            exit(EXIT_FAILURE);
+        while ((t = read(fd[0], &result, sizeof(float))) == sizeof(float)) {
+
+            char *result_string = calloc(sizeof(char), STR_LEN);
+            gcvt(result, 7, result_string);
+            if (write(1, result_string, strlen(result_string)) < 0) {
+                perror("Can't write result to stdout");
+                exit(EXIT_FAILURE);
+            }
+
+            char endline_c = '\n';
+            if (write(1, &endline_c, 1) < 0) {
+                perror("Can't write \\n to stdout");
+                exit(EXIT_FAILURE);
+            }
         }
 
         close(fd[0]);
         close(fd[1]);
         close(filedes);
-
-        char *result_string = calloc(sizeof(char), STR_LEN);
-        gcvt(result, 7, result_string);
-        if (write(1, result_string, strlen(result_string)) < 0) {
-            perror("Can't write result to stdout");
-            exit(EXIT_FAILURE);
-        }
-
-        char endline_c = '\n';
-        if (write(1, &endline_c, 1) < 0) {
-            perror("Can't write \\n to stdout");
-            exit(EXIT_FAILURE);
-        }
     }
 
     return 0;
