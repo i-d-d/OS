@@ -32,7 +32,7 @@ int main() {
     strncpy(fname, fname_buf, strlen_new(fname_buf));
     free(fname_buf);
 
-    pid_t fd[2];
+    int fd[2];
     if (pipe(fd) != 0) {
         perror("Pipe error");
         exit(EXIT_FAILURE);
