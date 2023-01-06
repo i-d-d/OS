@@ -1,13 +1,13 @@
-#include <stdbool.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
 #include <limits.h>
-#include <string.h>
 #include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 int flag = 0;
@@ -25,7 +25,7 @@ typedef struct {
 #define STR_LEN 32
 
 void *thread_function(void *param) {
-    params args = * (params *) param;
+    params args = *(params *)param;
 
     int num = args.thread_number;
     int *a = args.data;
@@ -112,7 +112,7 @@ int read_int(int fd, int *f) {
     if (c == '\n') {
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -132,8 +132,7 @@ char *itoa(int x) {
             a /= 10;
         }
         result[0] = '-';
-    }
-    else {
+    } else {
         result = calloc(sizeof(char), n);
         a = x;
         for (int i = n - 1; i >= 0; --i) {
@@ -141,7 +140,7 @@ char *itoa(int x) {
             a /= 10;
         }
     }
-    return result;    
+    return result;
 }
 
 int main(int argc, const char **argv) {
@@ -154,7 +153,7 @@ int main(int argc, const char **argv) {
 
     char *array_name = get_name("Enter name of file with array to sort: ");
     char *output_name = get_name("Enter name of file for result: ");
-    
+
     int filedes;
 
     if ((filedes = open(array_name, O_RDONLY)) < 0) {
@@ -171,8 +170,7 @@ int main(int argc, const char **argv) {
     for (int i = 0; i < m; ++i) {
         if (i < n) {
             read_int(filedes, &a[i]);
-        }
-        else {
+        } else {
             a[i] = FICTIOUS;
         }
     }
@@ -197,6 +195,9 @@ int main(int argc, const char **argv) {
             for (int i = 0; i < thread_number; ++i) {
                 params t = {i, thread_number, level, chunk_size, a, m};
                 int status = pthread_create(&thread_id[i], NULL, thread_function, &t);
+                while (flag != 1)
+                    ;
+                flag = 0;
                 if (status != 0) {
                     perror("Thread create error");
                     exit(EXIT_FAILURE);
@@ -208,7 +209,7 @@ int main(int argc, const char **argv) {
         }
     }
 
-    end = clock(); 
+    end = clock();
     close(filedes);
     if ((filedes = open(output_name, O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU)) < 0) {
         perror(output_name);
@@ -227,6 +228,4 @@ int main(int argc, const char **argv) {
     close(filedes);
 
     printf("%lf\n", (float)(end - start) / (CLOCKS_PER_SEC));
-
-    
 }
