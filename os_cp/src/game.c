@@ -14,22 +14,23 @@ const char *check_guess(long target, long guess) {
     int b = 0, c = 0;
     const char *target_str = int_to_string(target);
     const char *guess_str = int_to_string(guess);
+    int bulls[5] = {0, 0, 0, 0, 0};
+    int cows[5] = {0, 0, 0, 0, 0};
     for (int i = 0; i < 5; ++i) {
-        if (target_str[i] == guess_str[i])
+        if (target_str[i] == guess_str[i]) {
             b++;
-        else {
-            int d = 0;
-            for (int k = 0; k < i; ++k) {
-                if (guess_str[k] == guess_str[i])
-                    d++;
+            bulls[i] = 1;
+        }
+    }
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            if (j != i) {
+                if ((target_str[j] == guess_str[i]) && (bulls[j] == 0) && (cows[j] == 0)) {
+                    cows[j] = 1;
+                    c++;
+                    break;
+                }
             }
-            int occ = 0;
-            for (int j = 0; j < 5; ++j) {
-                if (target_str[j] == guess_str[i])
-                    occ++;
-            }
-            if (occ > d)
-                c++;
         }
     }
     char *result = (char *)calloc(sizeof(char), 5);
@@ -121,7 +122,7 @@ int main(int argc, char const *argv[]) {
 
             if (strcmp(check, "5b0c") == 0) {
                 guesses = strcat(guesses, player_name(i));
-                guesses = strcat(guesses, " is the winner!");
+                guesses = strcat(guesses, " is the winner!\n");
                 guessed = 1;
                 winner = i;
             }

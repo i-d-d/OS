@@ -59,9 +59,9 @@ void play_game(void *socket) {
             if (!zmq_msg_more(&msg))
                 break;
         }
-        printf("%s", guesses);
-        printf("\nMake your move!\n");
+        printf("\n%s", guesses);
         if (type == 0) {
+            printf("\nMake your move!\n");
             long guess;
             while (1) {
                 const char *guess_str = read_word();

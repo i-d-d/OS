@@ -25,7 +25,7 @@
 #define CLIENT_ADRESS_PREFIX "tcp://localhost:"
 #define SERVER_ADRESS_PREFIX "tcp://*:"
 
-#define BASE_PORT 6900
+#define BASE_PORT 5050
 #define STR_LEN 64
 #define STR_LEN_LONG 2048
 
